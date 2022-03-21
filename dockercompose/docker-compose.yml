@@ -1,0 +1,28 @@
+version: '3.4'
+services:
+  mongodb_server:
+    image: mongo:3.6
+    restart: always
+    volumes:
+      - my-data-mongodb:/docker-entrypoint-initdb.d/:ro
+    networks:
+      - backend
+      
+  apiblog:
+    build: .
+    environment: 
+      - host=mongodb_server
+    depends_on:
+      - mongodb_server
+    restart: on-failure
+    ports:
+       - "1603:8080"
+    entrypoint: dockerize -wait tcp://mongodb_server:27017 -timeout 10m java -jar /opt/app.jar
+    networks:
+      - backend
+      
+volumes:
+  my-data-mongodb:
+
+networks:
+  backend: 
